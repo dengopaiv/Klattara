@@ -1,7 +1,6 @@
 """Builds the Klattara NVDA add-on.
 
-Builds klattara.dll for 64-bit and 32-bit NVDA, runs the driver tests against
-each, and packs the add-on into dist/klattara-<version>.nvda-addon, ready to
+Builds the 64-bit klattara.dll, runs the driver tests against it, and packs the add-on into dist/klattara-<version>.nvda-addon, ready to
 install by opening it.
 
 Usage, from the project folder:
@@ -17,17 +16,11 @@ ROOT = Path(__file__).resolve().parents[3]
 ADDON = ROOT / "src" / "plat" / "nvda" / "addon"
 DIST = ROOT / "dist"
 CARGO_BUILD = ["cargo", "build", "--release", "-p", "klattara-windows"]
-# NVDA is 32-bit before 2026 and 64-bit from then on. For each: the add-on's
-# folder for the DLL, how to build it, where it lands, and how the Python
-# launcher starts a Python of the same width to test it.
+# This fork builds for 64-bit NVDA only (2026.1 and later). For each build: the
+# add-on's folder for the DLL, how to build it, where it lands, and how the
+# Python launcher starts a Python of the same width to test it.
 BUILDS = [
     ("x64", CARGO_BUILD, ROOT / "target" / "release" / "klattara.dll", "-3-64"),
-    (
-        "x86",
-        [*CARGO_BUILD, "--target", "i686-pc-windows-msvc"],
-        ROOT / "target" / "i686-pc-windows-msvc" / "release" / "klattara.dll",
-        "-3-32",
-    ),
 ]
 
 

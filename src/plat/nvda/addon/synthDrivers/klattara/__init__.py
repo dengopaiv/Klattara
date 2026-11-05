@@ -35,13 +35,8 @@ from synthDriverHandler import VoiceInfo, synthDoneSpeaking, synthIndexReached
 
 addonHandler.initTranslation()
 
-# NVDA is 32-bit before 2026 and 64-bit from then on, so the add-on carries a
-# DLL for each and loads the one that matches the running NVDA.
-DLL_PATH = os.path.join(
-	os.path.dirname(__file__),
-	"x64" if ctypes.sizeof(ctypes.c_void_p) == 8 else "x86",
-	"klattara.dll",
-)
+# This fork's add-on is for 64-bit NVDA only and carries one DLL.
+DLL_PATH = os.path.join(os.path.dirname(__file__), "x64", "klattara.dll")
 SAMPLE_RATE = 22050
 BYTES_PER_SAMPLE = 2
 

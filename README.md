@@ -29,7 +29,7 @@ It ships as an add-on for the NVDA screen reader, as a Windows library (klattara
 
 ## Installing the NVDA add-on
 
-The add-on needs NVDA 2025.1 or later, on Windows 10 or later. It works in both 32-bit NVDA, as NVDA was before 2026, and 64-bit NVDA.
+The add-on needs NVDA 2026.1 or later, on Windows 10 or later. It works in 64-bit NVDA only. This is where this fork, dengopaiv/Klattara, differs from RetroBunn's Klattara: it builds no 32-bit DLL and no add-on for 32-bit NVDA.
 
 1. Download klattara-1.0.nvda-addon.
 2. Open the file while NVDA is running, and confirm that you want to install it.
@@ -69,9 +69,7 @@ Text goes straight to the engine, so phoneme input, voice commands and singing w
 
 ## Using the library from other programs
 
-klattara.dll is a Windows library, in 64-bit and 32-bit versions, for Windows 10 or later. It needs nothing else installed: Microsoft's C runtime is built in. Its interface is declared in src/plat/windows/klattara.h. Every function catches internal errors and returns an error code instead of crashing the program that calls it. An engine may be used from any thread, but from only one thread at a time. Text can be any length: very long text is read in pieces, so memory stays small and speech starts at once.
-
-On 32-bit Windows, the functions and the audio callback use the C calling convention (cdecl). The header says so for C and C++ programs; programs in other languages need to declare it themselves.
+klattara.dll is a 64-bit Windows library, for Windows 10 or later. It needs nothing else installed: Microsoft's C runtime is built in. Its interface is declared in src/plat/windows/klattara.h. Every function catches internal errors and returns an error code instead of crashing the program that calls it. An engine may be used from any thread, but from only one thread at a time. Text can be any length: very long text is read in pieces, so memory stays small and speech starts at once.
 
 ### The C interface
 
@@ -244,21 +242,14 @@ You need Rust 1.99 or later; the code uses the 2024 edition. To build the engine
 
     cargo build --release
 
-The DLL is written to target/release/klattara.dll. For the 32-bit version, add Rust's 32-bit target once, and build for it:
+The DLL is written to target/release/klattara.dll.
 
-    rustup target add i686-pc-windows-msvc
-    cargo build --release -p klattara-windows --target i686-pc-windows-msvc
-
-That DLL is written to target/i686-pc-windows-msvc/release/klattara.dll.
-
-To build the NVDA add-on, you also need the 32-bit target above, and both 64-bit and 32-bit Python with the py launcher. The build runs the driver's tests against NVDA's own source code, so clone NVDA into the project folder first:
+To build the NVDA add-on, you also need 64-bit Python with the py launcher. The build runs the driver's tests against NVDA's own source code, so clone NVDA into the project folder first:
 
     git clone --depth 1 https://github.com/nvaccess/nvda nvda
     python src/plat/nvda/build.py
 
-That builds both DLLs, tests the driver on each, and writes dist/klattara-1.0.nvda-addon, which carries both. KlattPad needs nothing more than `cargo build --release`, which writes target/release/klattpad.exe. To test the 32-bit DLL on the code of 32-bit NVDA rather than current NVDA, also clone its last release; the tests use it if it's there:
-
-    git clone --depth 1 --branch release-2025.1 https://github.com/nvaccess/nvda nvda-release-2025.1
+That builds the DLL, tests the driver on it, and writes dist/klattara-1.0.nvda-addon. KlattPad needs nothing more than `cargo build --release`, which writes target/release/klattpad.exe.
 
 To correct a word's pronunciation, or add a word, edit src/data/extra_words.dict and rebuild. The notes at the top of that file explain the format.
 
@@ -270,7 +261,7 @@ To try the voice without NVDA, the say example writes a WAV file and prints the 
 
 ## Testing
 
-Run the unit tests with `cargo test --release`. They check the signal processing, durations, text reading and the C interface. Add `--target i686-pc-windows-msvc` to run them in 32-bit.
+Run the unit tests with `cargo test --release`. They check the signal processing, durations, text reading and the C interface.
 
 src/plat/klattpad/test_klattpad.py tests KlattPad itself: the real program, through its real window, on a hidden desktop so that it doesn't take the focus. Playing is tested at volume 0, so it makes no sound. Its first lines say how to run it.
 

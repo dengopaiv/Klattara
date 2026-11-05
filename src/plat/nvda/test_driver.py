@@ -1,11 +1,8 @@
 """Tests the NVDA driver outside NVDA, against the real klattara.dll and NVDA's
 own Python code.
 
-NVDA is 32-bit before 2026 and 64-bit from then on, so each DLL is tested on the
-NVDA that will load it: a 64-bit Python tests the 64-bit DLL on the clone of
-https://github.com/nvaccess/nvda in the nvda folder of the project, and a 32-bit
-Python tests the 32-bit DLL on NVDA 2025.1, in the nvda-release-2025.1 folder.
-If that folder isn't there, the 32-bit DLL is tested on the nvda folder instead.
+This fork builds for 64-bit NVDA only: a 64-bit Python tests the 64-bit DLL on the
+clone of https://github.com/nvaccess/nvda in the nvda folder of the project.
 
 The driver runs on NVDA's real synthDriverHandler, driverHandler,
 autoSettingsUtils, speech.commands, extensionPoints and baseObject. Only what
@@ -14,9 +11,8 @@ translations, the settings ring and voice dictionaries, and the audio player,
 which needs NVDA's compiled helper library. The stand-in player has the real
 one's signature, checked against NVDA's nvwave.py, and records what it is given.
 
-Usage, from the project folder, after building the DLLs:
+Usage, from the project folder, after building the DLL:
     py -3-64 src/plat/nvda/test_driver.py
-    py -3-32 src/plat/nvda/test_driver.py
 """
 
 import ast
@@ -32,16 +28,10 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[3]
 DRIVER = ROOT / "src" / "plat" / "nvda" / "addon" / "synthDrivers" / "klattara" / "__init__.py"
 NVDA_SOURCE = ROOT / "nvda" / "source"
-if ctypes.sizeof(ctypes.c_void_p) == 8:
-    ARCHITECTURE = "x64"
-    DLL = ROOT / "target" / "release" / "klattara.dll"
-else:
-    ARCHITECTURE = "x86"
-    DLL = ROOT / "target" / "i686-pc-windows-msvc" / "release" / "klattara.dll"
-    if (ROOT / "nvda-release-2025.1" / "source").is_dir():
-        NVDA_SOURCE = ROOT / "nvda-release-2025.1" / "source"
-    else:
-        print("warning: no nvda-release-2025.1 folder, so the 32-bit DLL is tested on current NVDA, not on 32-bit NVDA's code")
+if ctypes.sizeof(ctypes.c_void_p) != 8:
+    raise SystemExit("These tests need a 64-bit Python: this fork builds no 32-bit DLL.")
+ARCHITECTURE = "x64"
+DLL = ROOT / "target" / "release" / "klattara.dll"
 
 events = []
 lock = threading.Lock()
